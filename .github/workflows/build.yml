@@ -30,6 +30,7 @@ jobs:
           mkdir -p translations/core
           mkdir -p translations/core-ign
           mkdir -p translations/devbuild
+          mkdir -p translations/voiceinput
           mkdir -p java/assets/themes
           mkdir -p voiceinput-shared/src/main/ml
 
@@ -44,19 +45,19 @@ jobs:
 
       - name: Install Android NDK
         run: |
-          sdkmanager --install "ndk;28.2.13676358"
+          yes | sdkmanager --install "ndk;28.2.13676358" || true
 
       - name: Create stub libs directory
         run: |
           mkdir -p libs
-          # Create a minimal stub AAR for mozc-release so Gradle can resolve it
-          mkdir -p /tmp/mozc-stub
-          mkdir -p /tmp/mozc-stub/jni
-          echo '<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="org.mozc.android.inputmethod.japanese"/>' > /tmp/mozc-stub/AndroidManifest.xml
-          echo "" > /tmp/mozc-stub/classes.jar
-          cd /tmp/mozc-stub && jar cf classes.jar -C . AndroidManifest.xml
-          cd /tmp/mozc-stub && zip ../mozc-release.aar AndroidManifest.xml classes.jar
-          cp /tmp/mozc-release.aar libs/mozc-release.aar
+          # Create minimal stub AARs so Gradle can resolve flatDir dependencies
+          STUB_DIR=$(mktemp -d)
+          echo '<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="org.stub"/>' > "$STUB_DIR/AndroidManifest.xml"
+          cd "$STUB_DIR" && jar cf classes.jar AndroidManifest.xml
+          cd "$STUB_DIR" && zip mozc-release.aar AndroidManifest.xml classes.jar
+          cd "$STUB_DIR" && zip vad-release.aar AndroidManifest.xml classes.jar
+          cp "$STUB_DIR/mozc-release.aar" "$GITHUB_WORKSPACE/libs/mozc-release.aar"
+          cp "$STUB_DIR/vad-release.aar" "$GITHUB_WORKSPACE/libs/vad-release.aar"
 
       - name: Set version info
         run: |
