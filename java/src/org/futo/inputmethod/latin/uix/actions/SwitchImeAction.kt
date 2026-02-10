@@ -5,7 +5,7 @@ import org.futo.inputmethod.latin.R
 import org.futo.inputmethod.latin.uix.Action
 
 val SwitchImeAction = Action(
-    icon = R.drawable.arrow_back,
+    icon = R.drawable.switch_keyboard,
     name = R.string.switch_ime_key,
     simplePressImpl = { manager, _ ->
         val latinIME = manager.getLatinIMEForDebug()
