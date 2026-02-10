@@ -23,9 +23,7 @@ jobs:
 
       - name: Initialize available submodules
         run: |
-          # Initialize only the submodules that are publicly accessible
           git submodule update --init java/assets/layouts || true
-          # Create empty directories for submodules that cannot be cloned
           mkdir -p java/res-large
           mkdir -p translations/core
           mkdir -p translations/core-ign
@@ -47,17 +45,10 @@ jobs:
         run: |
           yes | sdkmanager --install "ndk;28.2.13676358" || true
 
-      - name: Create stub libs directory
+      - name: Prepare library dependencies
         run: |
-          mkdir -p libs
-          # Create minimal stub AARs so Gradle can resolve flatDir dependencies
-          STUB_DIR=$(mktemp -d)
-          echo '<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="org.stub"/>' > "$STUB_DIR/AndroidManifest.xml"
-          cd "$STUB_DIR" && jar cf classes.jar AndroidManifest.xml
-          cd "$STUB_DIR" && zip mozc-release.aar AndroidManifest.xml classes.jar
-          cd "$STUB_DIR" && zip vad-release.aar AndroidManifest.xml classes.jar
-          cp "$STUB_DIR/mozc-release.aar" "$GITHUB_WORKSPACE/libs/mozc-release.aar"
-          cp "$STUB_DIR/vad-release.aar" "$GITHUB_WORKSPACE/libs/vad-release.aar"
+          chmod +x .github/scripts/prepare-libs.sh
+          .github/scripts/prepare-libs.sh "$GITHUB_WORKSPACE/libs" "$ANDROID_HOME/platforms/android-35/android.jar"
 
       - name: Set version info
         run: |
