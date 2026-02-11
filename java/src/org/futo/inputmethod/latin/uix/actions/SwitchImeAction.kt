@@ -5,7 +5,10 @@ import android.view.inputmethod.InputMethodInfo
 import android.view.inputmethod.InputMethodManager
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.datastore.preferences.core.stringPreferencesKey
@@ -26,18 +29,22 @@ private fun getEnabledImes(context: Context): List<InputMethodInfo> {
 val SwitchIme1Setting = SettingsKey(stringPreferencesKey("switch_ime_1_target"), "")
 val SwitchIme2Setting = SettingsKey(stringPreferencesKey("switch_ime_2_target"), "")
 val SwitchIme3Setting = SettingsKey(stringPreferencesKey("switch_ime_3_target"), "")
+val SwitchIme4Setting = SettingsKey(stringPreferencesKey("switch_ime_4_target"), "")
+val SwitchIme5Setting = SettingsKey(stringPreferencesKey("switch_ime_5_target"), "")
 
 @Composable
 private fun ImePicker(setting: SettingsKey<String>) {
     val context = LocalContext.current
     val imes = remember { getEnabledImes(context) }
-    val currentId = remember { context.getSettingBlocking(setting) }
-    val selected = remember(currentId, imes) { imes.find { it.id == currentId } }
+    var selected by remember { mutableStateOf(imes.find { it.id == context.getSettingBlocking(setting) }) }
 
     DropDownPicker(
         options = imes,
         selection = selected,
-        onSet = { context.setSettingBlocking(setting.key, it.id) },
+        onSet = {
+            selected = it
+            context.setSettingBlocking(setting.key, it.id)
+        },
         getDisplayName = { it.loadLabel(context.packageManager).toString() },
         modifier = Modifier.fillMaxWidth()
     )
@@ -101,4 +108,20 @@ val SwitchIme3Action = createSwitchImeAction(
     SwitchIme3Setting,
     R.string.switch_ime_settings_title,
     "actions/switch_ime_3"
+)
+
+val SwitchIme4Action = createSwitchImeAction(
+    R.drawable.keyboard_4,
+    R.string.switch_ime_4_key,
+    SwitchIme4Setting,
+    R.string.switch_ime_settings_title,
+    "actions/switch_ime_4"
+)
+
+val SwitchIme5Action = createSwitchImeAction(
+    R.drawable.keyboard_5,
+    R.string.switch_ime_5_key,
+    SwitchIme5Setting,
+    R.string.switch_ime_settings_title,
+    "actions/switch_ime_5"
 )
