@@ -33,6 +33,14 @@
     <!-- Option to show language switch key [CHAR LIMIT=30] -->
     <string name="show_language_switch_key">Language switch key</string>
 
+    <!-- Option to switch to a configured keyboard [CHAR LIMIT=30] -->
+    <string name="switch_ime_1_key">Switch keyboard 1</string>
+    <string name="switch_ime_2_key">Switch keyboard 2</string>
+    <string name="switch_ime_3_key">Switch keyboard 3</string>
+    <string name="switch_ime_4_key">Switch keyboard 4</string>
+    <string name="switch_ime_5_key">Switch keyboard 5</string>
+    <string name="switch_ime_settings_title">Target keyboard</string>
+
     <!-- Units abbreviation for the duration (milliseconds) [CHAR LIMIT=10] -->
     <string name="abbreviation_unit_milliseconds"><xliff:g id="MILLISECONDS">%s</xliff:g>ms</string>
 

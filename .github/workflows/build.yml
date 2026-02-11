@@ -1,0 +1,86 @@
+name: Build APK
+
+on:
+  push:
+    branches: [ main, master, 'copilot/**' ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          submodules: false
+
+      - name: Initialize available submodules
+        run: |
+          git submodule update --init java/assets/layouts || true
+          mkdir -p java/res-large/raw
+          mkdir -p translations/core
+          mkdir -p translations/core-ign
+          mkdir -p translations/devbuild
+          mkdir -p translations/voiceinput
+          mkdir -p java/assets/themes
+          mkdir -p voiceinput-shared/src/main/ml
+          # Create placeholder raw resources (originals are in the res-large submodule)
+          echo '{}' | gzip > java/res-large/raw/emoji_i18n
+          dd if=/dev/zero bs=1 count=1 of=java/res-large/raw/ml4_q6_k 2>/dev/null
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install Android NDK
+        run: |
+          yes | sdkmanager --install "ndk;28.2.13676358" || true
+
+      - name: Prepare library dependencies
+        run: |
+          chmod +x .github/scripts/prepare-libs.sh
+          .github/scripts/prepare-libs.sh "$GITHUB_WORKSPACE/libs" "$ANDROID_HOME/platforms/android-35/android.jar"
+
+      - name: Set version info
+        run: |
+          echo "VERSION_CODE=$(git rev-list --first-parent --count HEAD)" >> $GITHUB_ENV
+          echo "VERSION_NAME=$(git describe --tags --always --dirty)" >> $GITHUB_ENV
+
+      - name: Build with Gradle
+        run: |
+          chmod +x gradlew
+          ./gradlew assembleUnstableDebug -x lint --stacktrace
+        env:
+          VERSION_CODE: ${{ env.VERSION_CODE }}
+          VERSION_NAME: ${{ env.VERSION_NAME }}
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: keyboard-apk-${{ env.VERSION_NAME }}
+          path: build/outputs/apk/**/*.apk
+          if-no-files-found: warn
+
+      - name: Create Release
+        if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: build-${{ github.run_number }}
+          name: Build ${{ env.VERSION_NAME }}
+          draft: false
+          prerelease: true
+          files: build/outputs/apk/**/*.apk
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
