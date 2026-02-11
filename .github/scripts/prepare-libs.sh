@@ -28,7 +28,7 @@ mkdir -p "$WORK/src/com/google/android/apps/inputmethod/libs/mozc/session"
 cat > "$WORK/src/com/google/android/apps/inputmethod/libs/mozc/session/MozcJNI.java" << 'EOF'
 package com.google.android.apps.inputmethod.libs.mozc.session;
 public class MozcJNI {
-    public static void load(String userProfileDir, String dictPath, int offset, int length) {}
+    public static void load(String userProfileDir, String dictPath, long offset, long length) {}
 }
 EOF
 
@@ -161,7 +161,7 @@ public class SessionExecutor {
         List<ProtoCommands.Input.TouchEvent> touchEvents) {}
     public void switchInputFieldType(ProtoCommands.Context.InputFieldType fieldType) {}
     public void moveCursor(int offset, EvaluationCallback callback) {}
-    public void sendKey(int keyEvent, KeycodeConverter.KeyEventInterface keyEventInterface,
+    public void sendKey(ProtoCommands.KeyEvent keyEvent, KeycodeConverter.KeyEventInterface keyEventInterface,
         List<ProtoCommands.Input.TouchEvent> touchEvents, EvaluationCallback callback) {}
     public void submitCandidate(int candidateId, Optional<Integer> rowIdx,
         EvaluationCallback callback) {}
@@ -204,6 +204,7 @@ public final class ProtoCommands {
         public boolean hasErrorCode() { return false; }
         public ErrorCode getErrorCode() { return null; }
         public ProtoCandidateWindow.CandidateList getAllCandidateWords() { return null; }
+        public boolean hasAllCandidateWords() { return false; }
         public boolean hasCandidateWindow() { return false; }
         public ProtoCandidateWindow.CandidateWindow getCandidateWindow() { return null; }
     }
@@ -257,6 +258,7 @@ public final class ProtoCandidateWindow {
         public int getCandidatesCount() { return 0; }
         public List<CandidateWord> getCandidatesList() { return Collections.emptyList(); }
         public Category getCategory() { return null; }
+        public boolean hasCategory() { return false; }
     }
     public static final class CandidateWord {
         public String getValue() { return null; }
@@ -287,23 +289,23 @@ public final class ProtoConfig {
         public enum HistoryLearningLevel { READ_ONLY, DEFAULT_HISTORY; }
         public static Builder newBuilder() { return new Builder(); }
         public static final class Builder {
-            public Builder setSessionKeymap(SessionKeymap v) { return this; }
-            public Builder setSelectionShortcut(SelectionShortcut v) { return this; }
-            public Builder setUseEmojiConversion(boolean v) { return this; }
-            public Builder setSpaceCharacterForm(FundamentalCharacterForm v) { return this; }
-            public Builder setUseKanaModifierInsensitiveConversion(boolean v) { return this; }
-            public Builder setUseTypingCorrection(boolean v) { return this; }
-            public Builder setYenSignCharacter(YenSignCharacter v) { return this; }
-            public Builder setHistoryLearningLevel(HistoryLearningLevel v) { return this; }
-            public Builder setIncognitoMode(boolean v) { return this; }
-            public Builder setGeneralConfig(GeneralConfig v) { return this; }
+            public SessionKeymap sessionKeymap;
+            public SelectionShortcut selectionShortcut;
+            public boolean useEmojiConversion;
+            public FundamentalCharacterForm spaceCharacterForm;
+            public boolean useKanaModifierInsensitiveConversion;
+            public boolean useTypingCorrection;
+            public YenSignCharacter yenSignCharacter;
+            public HistoryLearningLevel historyLearningLevel;
+            public boolean incognitoMode;
+            public GeneralConfig generalConfig;
             public Config build() { return null; }
         }
     }
     public static final class GeneralConfig {
         public static Builder newBuilder() { return new Builder(); }
         public static final class Builder {
-            public Builder setUploadUsageStats(boolean v) { return this; }
+            public boolean uploadUsageStats;
             public GeneralConfig build() { return null; }
         }
     }
@@ -316,7 +318,7 @@ import java.util.List;
 import java.util.Collections;
 public final class ProtoUserDictionaryStorage {
     public static final class UserDictionary {
-        public enum PosType { NOUN, ABBREVIATION, SUGGESTION_ONLY, PROPER_NOUN, PERSONAL_NAME, ORGANIZATION_NAME, PLACE_NAME, SA_IRREGULAR_CONJUGATION_NOUN, ADJECTIVE_VERBAL_NOUN, NUMBER, ALPHABET, SUFFIX, COUNTER_SUFFIX, GENERIC_SUFFIX, PERSON_NAME_SUFFIX, PLACE_NAME_SUFFIX, WA_GROUP1_VERB, KA_GROUP1_VERB, SA_GROUP1_VERB, TA_GROUP1_VERB, NA_GROUP1_VERB, MA_GROUP1_VERB, RA_GROUP1_VERB, GA_GROUP1_VERB, BA_GROUP1_VERB, HA_GROUP1_VERB, GROUP2_VERB, KURU_GROUP3_VERB, SURU_GROUP3_VERB, ZURU_GROUP3_VERB, RU_GROUP3_VERB, ADJECTIVE, SENTENCE_ENDING_PARTICLE, CONJUNCTION, INDEPENDENT_WORD, PREFIX, ENGLISH_PREFIX, ENGLISH_SUFFIX, CONTENT_WORD, FUNCTION_WORD, SELECTION_ONLY, USED_IN_GRAMMAR; }
+        public enum PosType { NO_POS, NOUN, ABBREVIATION, SUGGESTION_ONLY, PROPER_NOUN, PERSONAL_NAME, FAMILY_NAME, FIRST_NAME, ORGANIZATION_NAME, PLACE_NAME, SA_IRREGULAR_CONJUGATION_NOUN, ADJECTIVE_VERBAL_NOUN, NUMBER, ALPHABET, SYMBOL, EMOTICON, SUFFIX, COUNTER_SUFFIX, GENERIC_SUFFIX, PERSON_NAME_SUFFIX, PLACE_NAME_SUFFIX, WA_GROUP1_VERB, KA_GROUP1_VERB, SA_GROUP1_VERB, TA_GROUP1_VERB, NA_GROUP1_VERB, MA_GROUP1_VERB, RA_GROUP1_VERB, GA_GROUP1_VERB, BA_GROUP1_VERB, HA_GROUP1_VERB, GROUP2_VERB, KURU_GROUP3_VERB, SURU_GROUP3_VERB, ZURU_GROUP3_VERB, RU_GROUP3_VERB, ADJECTIVE, ADVERB, PRENOUN_ADJECTIVAL, CONJUNCTION, INTERJECTION, SENTENCE_ENDING_PARTICLE, PUNCTUATION, FREE_STANDING_WORD, SUPPRESSION_WORD, INDEPENDENT_WORD, PREFIX, ENGLISH_PREFIX, ENGLISH_SUFFIX, CONTENT_WORD, FUNCTION_WORD, SELECTION_ONLY, USED_IN_GRAMMAR; }
         public int getId() { return 0; }
         public String getName() { return null; }
         public static final class Entry {
