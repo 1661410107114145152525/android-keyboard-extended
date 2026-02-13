@@ -82,6 +82,39 @@ jobs:
           VERSION_CODE: ${{ env.VERSION_CODE }}
           VERSION_NAME: ${{ env.VERSION_NAME }}
 
+      - name: Verify and re-sign APK for Android 15+
+        run: |
+          APK_PATH=$(find build/outputs/apk -name "*.apk" | head -1)
+          echo "Found APK: $APK_PATH"
+          
+          # Verify current signature
+          echo "=== Current APK signature ==="
+          $ANDROID_HOME/build-tools/35.0.0/apksigner verify --print-certs "$APK_PATH" || true
+          
+          # Zipalign the APK (required before signing)
+          ALIGNED_APK="${APK_PATH%.apk}-aligned.apk"
+          $ANDROID_HOME/build-tools/35.0.0/zipalign -v -p 4 "$APK_PATH" "$ALIGNED_APK"
+          
+          # Re-sign with apksigner using v1, v2, v3, and v4 schemes
+          $ANDROID_HOME/build-tools/35.0.0/apksigner sign \
+            --ks java/shared.keystore \
+            --ks-key-alias androiddebugkey \
+            --ks-pass pass:android \
+            --key-pass pass:android \
+            --v1-signing-enabled true \
+            --v2-signing-enabled true \
+            --v3-signing-enabled true \
+            --v4-signing-enabled false \
+            --out "$APK_PATH" \
+            "$ALIGNED_APK"
+          
+          # Verify the new signature
+          echo "=== New APK signature ==="
+          $ANDROID_HOME/build-tools/35.0.0/apksigner verify --verbose --print-certs "$APK_PATH"
+          
+          # Clean up
+          rm -f "$ALIGNED_APK"
+
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
