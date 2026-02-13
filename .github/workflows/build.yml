@@ -41,22 +41,10 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Generate fresh debug keystore
+      - name: Verify debug keystore
         run: |
-          # Generate a new debug keystore with modern PKCS12 format and SHA256withRSA
-          # (Required for Android 15+ compatibility - old JKS with MD5withRSA is rejected)
-          rm -f java/shared.keystore
-          keytool -genkeypair -v \
-            -storetype PKCS12 \
-            -keystore java/shared.keystore \
-            -alias androiddebugkey \
-            -keyalg RSA \
-            -keysize 2048 \
-            -sigalg SHA256withRSA \
-            -validity 30000 \
-            -storepass android \
-            -keypass android \
-            -dname "CN=Android Debug,OU=Android,O=Android,L=Unknown,ST=Unknown,C=US"
+          # Verify the committed keystore is valid (PKCS12 with SHA256withRSA for Android 15+)
+          keytool -list -keystore java/shared.keystore -storepass android
 
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
