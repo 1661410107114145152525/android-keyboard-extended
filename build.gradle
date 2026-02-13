@@ -409,6 +409,9 @@ dependencies {
     implementation(name:'mozc-release', ext:'aar')
     // End for MOZC
 
+    // For on-device translation (DE↔EN)
+    implementation 'com.google.mlkit:translate:17.0.3'
+
     debugImplementation 'androidx.compose.ui:ui-tooling'
     debugImplementation 'androidx.compose.ui:ui-test-manifest'
 
