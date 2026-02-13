@@ -119,6 +119,7 @@ import org.futo.inputmethod.latin.suggestions.SuggestionStripViewListener
 import org.futo.inputmethod.latin.uix.actions.FavoriteActions
 import org.futo.inputmethod.latin.uix.actions.MoreActionsAction
 import org.futo.inputmethod.latin.uix.actions.PinnedActions
+import org.futo.inputmethod.latin.uix.actions.getEffectiveIconForAction
 import org.futo.inputmethod.latin.uix.actions.toActionList
 import org.futo.inputmethod.latin.uix.settings.useDataStore
 import org.futo.inputmethod.latin.uix.settings.useDataStoreValue
@@ -502,12 +503,14 @@ fun RowScope.SuggestionItems(words: SuggestedWords, onClick: (i: Int) -> Unit, o
 @Composable
 fun LazyItemScope.ActionItem(idx: Int, action: Action, onSelect: (Action) -> Unit, onLongSelect: (Action) -> Unit) {
     val width = 56.dp
+    val context = LocalContext.current
 
     val modifier = Modifier
         .width(width)
         .fillMaxHeight()
 
     val contentCol = LocalKeyboardScheme.current.onBackground
+    val effectiveIcon = remember(action) { getEffectiveIconForAction(context, action) }
 
     Box(modifier = modifier
         .clip(CircleShape)
@@ -515,7 +518,7 @@ fun LazyItemScope.ActionItem(idx: Int, action: Action, onSelect: (Action) -> Uni
             onLongClick = action.altPressImpl?.let { { onLongSelect(action) } },
             onClick = { onSelect(action) }), contentAlignment = Center) {
         Icon(
-            painter = painterResource(id = action.icon),
+            painter = painterResource(id = effectiveIcon),
             contentDescription = stringResource(action.name),
             tint = contentCol,
             modifier = Modifier.size(20.dp),
@@ -526,8 +529,10 @@ fun LazyItemScope.ActionItem(idx: Int, action: Action, onSelect: (Action) -> Uni
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ActionItemSmall(action: Action, onSelect: (Action) -> Unit, onLongSelect: (Action) -> Unit) {
+    val context = LocalContext.current
     val bgCol = LocalKeyboardScheme.current.keyboardContainer
     val fgCol = LocalKeyboardScheme.current.onKeyboardContainer
+    val effectiveIcon = remember(action) { getEffectiveIconForAction(context, action) }
 
     val circleRadius = with(LocalDensity.current) {
         16.dp.toPx()
@@ -552,7 +557,7 @@ fun ActionItemSmall(action: Action, onSelect: (Action) -> Unit, onLongSelect: (A
         contentAlignment = Center
     ) {
         Icon(
-            painter = painterResource(id = action.icon),
+            painter = painterResource(id = effectiveIcon),
             contentDescription = stringResource(action.name),
             tint = fgCol,
             modifier = Modifier.size(16.dp)

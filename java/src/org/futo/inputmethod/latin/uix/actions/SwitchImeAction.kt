@@ -40,6 +40,33 @@ val SwitchIme4IconSetting = SettingsKey(intPreferencesKey("switch_ime_4_icon"), 
 val SwitchIme5IconSetting = SettingsKey(intPreferencesKey("switch_ime_5_icon"), R.drawable.looks_5)
 
 /**
+ * Map of switch IME actions to their icon settings.
+ * Used to look up the user's configured icon for each switch keyboard action.
+ */
+private val switchImeIconSettings: Map<Action, SettingsKey<Int>> by lazy {
+    mapOf(
+        SwitchIme1Action to SwitchIme1IconSetting,
+        SwitchIme2Action to SwitchIme2IconSetting,
+        SwitchIme3Action to SwitchIme3IconSetting,
+        SwitchIme4Action to SwitchIme4IconSetting,
+        SwitchIme5Action to SwitchIme5IconSetting
+    )
+}
+
+/**
+ * Gets the effective icon for a switch IME action, reading from user settings if configured.
+ * Returns the action's default icon for non-switch IME actions or if no custom icon is set.
+ */
+fun getEffectiveIconForAction(context: Context, action: Action): Int {
+    val iconSetting = switchImeIconSettings[action]
+    return if (iconSetting != null) {
+        context.getSettingBlocking(iconSetting)
+    } else {
+        action.icon
+    }
+}
+
+/**
  * List of available icons that can be selected for switch keyboard actions.
  */
 val availableSwitchImeIcons = listOf(
