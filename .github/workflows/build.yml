@@ -43,19 +43,23 @@ jobs:
 
       - name: Generate fresh debug keystore
         run: |
-          # The old keystore uses MD5withRSA (disabled/deprecated)
-          # Generate a new one with SHA256withRSA for Android 15+ compatibility
+          # Generate a completely new debug keystore with modern settings
+          # Using PKCS12 format (modern standard) with SHA256withRSA
           rm -f java/shared.keystore
           keytool -genkeypair -v \
+            -storetype PKCS12 \
             -keystore java/shared.keystore \
             -alias androiddebugkey \
             -keyalg RSA \
             -keysize 2048 \
             -sigalg SHA256withRSA \
-            -validity 10000 \
+            -validity 30000 \
             -storepass android \
             -keypass android \
-            -dname "CN=Android Debug,O=Android,C=US"
+            -dname "CN=Android Debug,OU=Android,O=Android,L=Unknown,ST=Unknown,C=US"
+          
+          # Verify the keystore was created correctly
+          keytool -list -v -keystore java/shared.keystore -storepass android | head -20
 
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
@@ -86,6 +90,7 @@ jobs:
         run: |
           APK_PATH=$(find build/outputs/apk -name "*.apk" | head -1)
           echo "Found APK: $APK_PATH"
+          echo "APK size: $(du -h "$APK_PATH" | cut -f1)"
           
           # Verify current signature
           echo "=== Current APK signature ==="
@@ -93,14 +98,16 @@ jobs:
           
           # Zipalign the APK (required before signing)
           ALIGNED_APK="${APK_PATH%.apk}-aligned.apk"
-          $ANDROID_HOME/build-tools/35.0.0/zipalign -v -p 4 "$APK_PATH" "$ALIGNED_APK"
+          $ANDROID_HOME/build-tools/35.0.0/zipalign -f -p 4 "$APK_PATH" "$ALIGNED_APK"
           
-          # Re-sign with apksigner using v1, v2, v3, and v4 schemes
+          # Re-sign with apksigner - explicitly set min SDK to ensure proper scheme selection
+          # Android 15 (API 35) requires v2+ signing scheme
           $ANDROID_HOME/build-tools/35.0.0/apksigner sign \
             --ks java/shared.keystore \
             --ks-key-alias androiddebugkey \
             --ks-pass pass:android \
             --key-pass pass:android \
+            --min-sdk-version 24 \
             --v1-signing-enabled true \
             --v2-signing-enabled true \
             --v3-signing-enabled true \
@@ -111,6 +118,10 @@ jobs:
           # Verify the new signature
           echo "=== New APK signature ==="
           $ANDROID_HOME/build-tools/35.0.0/apksigner verify --verbose --print-certs "$APK_PATH"
+          
+          # Show final APK info
+          echo "=== Final APK ==="
+          ls -la "$APK_PATH"
           
           # Clean up
           rm -f "$ALIGNED_APK"
