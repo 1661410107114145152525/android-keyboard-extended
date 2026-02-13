@@ -40,6 +40,7 @@
     <string name="switch_ime_4_key">Switch keyboard 4</string>
     <string name="switch_ime_5_key">Switch keyboard 5</string>
     <string name="switch_ime_settings_title">Target keyboard</string>
+    <string name="switch_ime_icon_settings_title">Icon</string>
 
     <!-- Units abbreviation for the duration (milliseconds) [CHAR LIMIT=10] -->
     <string name="abbreviation_unit_milliseconds"><xliff:g id="MILLISECONDS">%s</xliff:g>ms</string>

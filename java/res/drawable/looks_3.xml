@@ -1,0 +1,14 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+  <!-- Circle outline -->
+  <path
+      android:fillColor="#FFFFFF"
+      android:pathData="M12,2C6.48,2 2,6.48 2,12s4.48,10 10,10 10,-4.48 10,-10S17.52,2 12,2zM12,20c-4.42,0 -8,-3.58 -8,-8s3.58,-8 8,-8 8,3.58 8,8 -3.58,8 -8,8z"/>
+  <!-- Number 3 -->
+  <path
+      android:fillColor="#FFFFFF"
+      android:pathData="M9,11.5c0,-1.38 1.12,-2.5 2.5,-2.5h1c1.38,0 2.5,1.12 2.5,2.5v0.5c0,0.55 -0.18,1.06 -0.48,1.47 0.3,0.41 0.48,0.92 0.48,1.47v0.56c0,1.38 -1.12,2.5 -2.5,2.5h-1c-1.38,0 -2.5,-1.12 -2.5,-2.5V15h1.5v0.5c0,0.55 0.45,1 1,1h1c0.55,0 1,-0.45 1,-1v-0.56c0,-0.55 -0.45,-1 -1,-1H11v-1.5h1.5c0.55,0 1,-0.45 1,-1V11c0,-0.55 -0.45,-1 -1,-1h-1c-0.55,0 -1,0.45 -1,1H9V11.5z"/>
+</vector>

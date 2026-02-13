@@ -11,6 +11,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import org.futo.inputmethod.latin.R
 import org.futo.inputmethod.latin.uix.Action
@@ -32,6 +33,32 @@ val SwitchIme3Setting = SettingsKey(stringPreferencesKey("switch_ime_3_target"),
 val SwitchIme4Setting = SettingsKey(stringPreferencesKey("switch_ime_4_target"), "")
 val SwitchIme5Setting = SettingsKey(stringPreferencesKey("switch_ime_5_target"), "")
 
+val SwitchIme1IconSetting = SettingsKey(intPreferencesKey("switch_ime_1_icon"), R.drawable.looks_1)
+val SwitchIme2IconSetting = SettingsKey(intPreferencesKey("switch_ime_2_icon"), R.drawable.looks_2)
+val SwitchIme3IconSetting = SettingsKey(intPreferencesKey("switch_ime_3_icon"), R.drawable.looks_3)
+val SwitchIme4IconSetting = SettingsKey(intPreferencesKey("switch_ime_4_icon"), R.drawable.looks_4)
+val SwitchIme5IconSetting = SettingsKey(intPreferencesKey("switch_ime_5_icon"), R.drawable.looks_5)
+
+/**
+ * List of available icons that can be selected for switch keyboard actions.
+ */
+val availableSwitchImeIcons = listOf(
+    R.drawable.looks_1 to "1 (Circle)",
+    R.drawable.looks_2 to "2 (Circle)",
+    R.drawable.looks_3 to "3 (Circle)",
+    R.drawable.looks_4 to "4 (Circle)",
+    R.drawable.looks_5 to "5 (Circle)",
+    R.drawable.keyboard_1 to "1 (Keyboard)",
+    R.drawable.keyboard_2 to "2 (Keyboard)",
+    R.drawable.keyboard_3 to "3 (Keyboard)",
+    R.drawable.keyboard_4 to "4 (Keyboard)",
+    R.drawable.keyboard_5 to "5 (Keyboard)",
+    R.drawable.keyboard to "Keyboard",
+    R.drawable.globe to "Globe",
+    R.drawable.settings to "Settings",
+    R.drawable.smile to "Smile"
+)
+
 @Composable
 private fun ImePicker(setting: SettingsKey<String>) {
     val context = LocalContext.current
@@ -50,14 +77,33 @@ private fun ImePicker(setting: SettingsKey<String>) {
     )
 }
 
+@Composable
+private fun IconPicker(iconSetting: SettingsKey<Int>) {
+    val context = LocalContext.current
+    var selectedIconRes by remember { mutableStateOf(context.getSettingBlocking(iconSetting)) }
+
+    DropDownPicker(
+        options = availableSwitchImeIcons,
+        selection = availableSwitchImeIcons.find { it.first == selectedIconRes },
+        onSet = { iconPair ->
+            selectedIconRes = iconPair.first
+            context.setSettingBlocking(iconSetting.key, iconPair.first)
+        },
+        getDisplayName = { it.second },
+        modifier = Modifier.fillMaxWidth()
+    )
+}
+
 private fun createSwitchImeAction(
-    iconRes: Int,
+    defaultIconRes: Int,
+    iconSetting: SettingsKey<Int>,
     nameRes: Int,
     setting: SettingsKey<String>,
     settingsTitle: Int,
+    iconSettingsTitle: Int,
     navPath: String
 ) = Action(
-    icon = iconRes,
+    icon = defaultIconRes,
     name = nameRes,
     simplePressImpl = { manager, _ ->
         val context = manager.getContext()
@@ -81,47 +127,61 @@ private fun createSwitchImeAction(
             UserSetting(
                 name = settingsTitle,
                 component = { ImePicker(setting) }
+            ),
+            UserSetting(
+                name = iconSettingsTitle,
+                component = { IconPicker(iconSetting) }
             )
         )
     )
 )
 
 val SwitchIme1Action = createSwitchImeAction(
-    R.drawable.keyboard_1,
+    R.drawable.looks_1,
+    SwitchIme1IconSetting,
     R.string.switch_ime_1_key,
     SwitchIme1Setting,
     R.string.switch_ime_settings_title,
+    R.string.switch_ime_icon_settings_title,
     "actions/switch_ime_1"
 )
 
 val SwitchIme2Action = createSwitchImeAction(
-    R.drawable.keyboard_2,
+    R.drawable.looks_2,
+    SwitchIme2IconSetting,
     R.string.switch_ime_2_key,
     SwitchIme2Setting,
     R.string.switch_ime_settings_title,
+    R.string.switch_ime_icon_settings_title,
     "actions/switch_ime_2"
 )
 
 val SwitchIme3Action = createSwitchImeAction(
-    R.drawable.keyboard_3,
+    R.drawable.looks_3,
+    SwitchIme3IconSetting,
     R.string.switch_ime_3_key,
     SwitchIme3Setting,
     R.string.switch_ime_settings_title,
+    R.string.switch_ime_icon_settings_title,
     "actions/switch_ime_3"
 )
 
 val SwitchIme4Action = createSwitchImeAction(
-    R.drawable.keyboard_4,
+    R.drawable.looks_4,
+    SwitchIme4IconSetting,
     R.string.switch_ime_4_key,
     SwitchIme4Setting,
     R.string.switch_ime_settings_title,
+    R.string.switch_ime_icon_settings_title,
     "actions/switch_ime_4"
 )
 
 val SwitchIme5Action = createSwitchImeAction(
-    R.drawable.keyboard_5,
+    R.drawable.looks_5,
+    SwitchIme5IconSetting,
     R.string.switch_ime_5_key,
     SwitchIme5Setting,
     R.string.switch_ime_settings_title,
+    R.string.switch_ime_icon_settings_title,
     "actions/switch_ime_5"
 )
