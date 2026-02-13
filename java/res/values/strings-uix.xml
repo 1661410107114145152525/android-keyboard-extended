@@ -132,6 +132,14 @@
     <string name="action_fonttyper_preset_title_opening_crawl">Opening Crawl</string>
     <string name="action_fonttyper_finish">Finish</string>
 
+    <!-- For Translate action -->
+    <string name="action_translate_title">Translate</string>
+    <string name="action_translate_no_text">Type text to translate</string>
+    <string name="action_translate_translating">Translating…</string>
+    <string name="action_translate_error_model">Failed to download translation model</string>
+    <string name="action_translate_error_failed">Translation failed</string>
+    <string name="action_translate_insert">Insert</string>
+
     <!-- Keyboard action kinds -->
     <string name="action_kind_action_key">Action Key</string>
     <string name="action_kind_pinned_key">Pinned Action(s)</string>

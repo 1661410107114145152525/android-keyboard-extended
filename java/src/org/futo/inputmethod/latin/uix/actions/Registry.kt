@@ -45,7 +45,8 @@ val AllActionsMap = mapOf(
     "switch_ime_2" to SwitchIme2Action,
     "switch_ime_3" to SwitchIme3Action,
     "switch_ime_4" to SwitchIme4Action,
-    "switch_ime_5" to SwitchIme5Action
+    "switch_ime_5" to SwitchIme5Action,
+    "translate" to TranslateAction
 )
 
 val ActionToId = AllActionsMap.entries.associate { it.value to it.key }
