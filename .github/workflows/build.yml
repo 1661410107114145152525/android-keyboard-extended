@@ -43,8 +43,8 @@ jobs:
 
       - name: Generate fresh debug keystore
         run: |
-          # Generate a completely new debug keystore with modern settings
-          # Using PKCS12 format (modern standard) with SHA256withRSA
+          # Generate a new debug keystore with modern PKCS12 format and SHA256withRSA
+          # (Required for Android 15+ compatibility - old JKS with MD5withRSA is rejected)
           rm -f java/shared.keystore
           keytool -genkeypair -v \
             -storetype PKCS12 \
@@ -57,9 +57,6 @@ jobs:
             -storepass android \
             -keypass android \
             -dname "CN=Android Debug,OU=Android,O=Android,L=Unknown,ST=Unknown,C=US"
-          
-          # Verify the keystore was created correctly
-          keytool -list -v -keystore java/shared.keystore -storepass android | head -20
 
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
@@ -85,46 +82,6 @@ jobs:
         env:
           VERSION_CODE: ${{ env.VERSION_CODE }}
           VERSION_NAME: ${{ env.VERSION_NAME }}
-
-      - name: Verify and re-sign APK for Android 15+
-        run: |
-          APK_PATH=$(find build/outputs/apk -name "*.apk" | head -1)
-          echo "Found APK: $APK_PATH"
-          echo "APK size: $(du -h "$APK_PATH" | cut -f1)"
-          
-          # Verify current signature
-          echo "=== Current APK signature ==="
-          $ANDROID_HOME/build-tools/35.0.0/apksigner verify --print-certs "$APK_PATH" || true
-          
-          # Zipalign the APK (required before signing)
-          ALIGNED_APK="${APK_PATH%.apk}-aligned.apk"
-          $ANDROID_HOME/build-tools/35.0.0/zipalign -f -p 4 "$APK_PATH" "$ALIGNED_APK"
-          
-          # Re-sign with apksigner - explicitly set min SDK to ensure proper scheme selection
-          # Android 15 (API 35) requires v2+ signing scheme
-          $ANDROID_HOME/build-tools/35.0.0/apksigner sign \
-            --ks java/shared.keystore \
-            --ks-key-alias androiddebugkey \
-            --ks-pass pass:android \
-            --key-pass pass:android \
-            --min-sdk-version 24 \
-            --v1-signing-enabled true \
-            --v2-signing-enabled true \
-            --v3-signing-enabled true \
-            --v4-signing-enabled false \
-            --out "$APK_PATH" \
-            "$ALIGNED_APK"
-          
-          # Verify the new signature
-          echo "=== New APK signature ==="
-          $ANDROID_HOME/build-tools/35.0.0/apksigner verify --verbose --print-certs "$APK_PATH"
-          
-          # Show final APK info
-          echo "=== Final APK ==="
-          ls -la "$APK_PATH"
-          
-          # Clean up
-          rm -f "$ALIGNED_APK"
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
