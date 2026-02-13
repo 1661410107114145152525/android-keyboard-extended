@@ -104,7 +104,7 @@ internal fun TranslateContents(
                 statusMessage.value = ""
             }
         } catch (_: Exception) {
-            statusMessage.value = context.getString(R.string.action_translate_error_model)
+            statusMessage.value = context.getString(R.string.action_translate_error_failed)
         } finally {
             translator.close()
         }

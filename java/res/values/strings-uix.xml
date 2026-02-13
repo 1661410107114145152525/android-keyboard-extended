@@ -136,7 +136,8 @@
     <string name="action_translate_title">Translate</string>
     <string name="action_translate_no_text">Type text to translate</string>
     <string name="action_translate_translating">Translating…</string>
-    <string name="action_translate_error_model">Translation model not ready. Downloading…</string>
+    <string name="action_translate_error_model">Failed to download translation model</string>
+    <string name="action_translate_error_failed">Translation failed</string>
     <string name="action_translate_insert">Insert</string>
 
     <!-- Keyboard action kinds -->
