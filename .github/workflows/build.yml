@@ -41,6 +41,22 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
+      - name: Generate fresh debug keystore
+        run: |
+          # The old keystore uses MD5withRSA (disabled/deprecated)
+          # Generate a new one with SHA256withRSA for Android 15+ compatibility
+          rm -f java/shared.keystore
+          keytool -genkeypair -v \
+            -keystore java/shared.keystore \
+            -alias androiddebugkey \
+            -keyalg RSA \
+            -keysize 2048 \
+            -sigalg SHA256withRSA \
+            -validity 10000 \
+            -storepass android \
+            -keypass android \
+            -dname "CN=Android Debug,O=Android,C=US"
+
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
 
