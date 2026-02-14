@@ -78,12 +78,8 @@ private val iconNameToResource: Map<String, Int> = mapOf(
     "image" to R.drawable.image,
     "mic" to R.drawable.mic,
     "numpad" to R.drawable.numpad,
-    "paste" to R.drawable.paste,
     "redo" to R.drawable.redo,
     "undo" to R.drawable.undo,
-    "select_all" to R.drawable.select_all,
-    "star" to R.drawable.star,
-    "translate" to R.drawable.translate,
     "type" to R.drawable.type
 )
 
