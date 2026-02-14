@@ -60,6 +60,9 @@ import sh.calvin.reorderable.rememberReorderableLazyGridState
 
 @Composable
 fun ActionItem(action: Action, modifier: Modifier = Modifier, dragIcon: Boolean = false, dragIconModifier: Modifier = Modifier) {
+    val context = LocalContext.current
+    val effectiveIcon = remember(action) { getEffectiveIconForAction(context, action) }
+    
     Surface(color = LocalKeyboardScheme.current.keyboardContainer,
         modifier = modifier
             .fillMaxWidth()
@@ -91,7 +94,7 @@ fun ActionItem(action: Action, modifier: Modifier = Modifier, dragIcon: Boolean 
                 ) {
                     Spacer(modifier = Modifier.weight(1.0f))
                     Icon(
-                        painterResource(id = action.icon),
+                        painterResource(id = effectiveIcon),
                         contentDescription = null,
                         modifier = Modifier.align(
                             CenterHorizontally

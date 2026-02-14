@@ -66,6 +66,43 @@ jobs:
           VERSION_CODE: ${{ env.VERSION_CODE }}
           VERSION_NAME: ${{ env.VERSION_NAME }}
 
+      - name: Re-sign APK for Android 15+ compatibility
+        run: |
+          # The original keystore uses MD5withRSA which is rejected by Android 15
+          # We need to re-sign with v2/v3 APK signature schemes using SHA256
+          # This keeps the same signing identity (certificate) but uses modern algorithms
+          
+          APK_PATH=$(find build/outputs/apk -name "*.apk" | head -1)
+          echo "Found APK: $APK_PATH"
+          
+          # Create a temporary copy for alignment
+          TEMP_APK="${APK_PATH%.apk}-temp.apk"
+          ALIGNED_APK="${APK_PATH%.apk}-aligned.apk"
+          
+          # Zipalign first (required before signing)
+          $ANDROID_HOME/build-tools/35.0.0/zipalign -f -p 4 "$APK_PATH" "$ALIGNED_APK"
+          
+          # Re-sign with apksigner using the same keystore but modern signature schemes
+          # apksigner will use SHA256 for the v2/v3 signatures even if the certificate was
+          # originally created with MD5withRSA
+          $ANDROID_HOME/build-tools/35.0.0/apksigner sign \
+            --ks java/shared.keystore \
+            --ks-key-alias androiddebugkey \
+            --ks-pass pass:android \
+            --key-pass pass:android \
+            --v1-signing-enabled true \
+            --v2-signing-enabled true \
+            --v3-signing-enabled true \
+            --out "$APK_PATH" \
+            "$ALIGNED_APK"
+          
+          # Verify the signature
+          echo "=== APK Signature Verification ==="
+          $ANDROID_HOME/build-tools/35.0.0/apksigner verify --verbose --print-certs "$APK_PATH"
+          
+          # Cleanup
+          rm -f "$ALIGNED_APK" "$TEMP_APK"
+
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
