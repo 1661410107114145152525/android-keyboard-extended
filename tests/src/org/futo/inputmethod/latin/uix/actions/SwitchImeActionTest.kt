@@ -12,68 +12,58 @@ import org.junit.Test
 class SwitchImeActionTest {
 
     @Test
-    fun testDefaultIconsAreLooksIcons() {
-        // Verify that the default icons for SwitchImeActions are looks_1 through looks_5
-        assertEquals("SwitchIme1 default icon should be looks_1", 
-            R.drawable.looks_1, SwitchIme1IconSetting.default)
-        assertEquals("SwitchIme2 default icon should be looks_2", 
-            R.drawable.looks_2, SwitchIme2IconSetting.default)
-        assertEquals("SwitchIme3 default icon should be looks_3", 
-            R.drawable.looks_3, SwitchIme3IconSetting.default)
-        assertEquals("SwitchIme4 default icon should be looks_4", 
-            R.drawable.looks_4, SwitchIme4IconSetting.default)
-        assertEquals("SwitchIme5 default icon should be looks_5", 
-            R.drawable.looks_5, SwitchIme5IconSetting.default)
+    fun testDefaultIconNamesAreLooksIcons() {
+        // Verify that the default icon names for SwitchImeActions are looks_1 through looks_5
+        assertEquals("SwitchIme1 default icon name should be looks_1", 
+            "looks_1", SwitchIme1IconSetting.default)
+        assertEquals("SwitchIme2 default icon name should be looks_2", 
+            "looks_2", SwitchIme2IconSetting.default)
+        assertEquals("SwitchIme3 default icon name should be looks_3", 
+            "looks_3", SwitchIme3IconSetting.default)
+        assertEquals("SwitchIme4 default icon name should be looks_4", 
+            "looks_4", SwitchIme4IconSetting.default)
+        assertEquals("SwitchIme5 default icon name should be looks_5", 
+            "looks_5", SwitchIme5IconSetting.default)
     }
 
     @Test
-    fun testAvailableIconsContainsLooksIcons() {
-        // Verify that the available icons list contains all looks icons
-        val iconResources = availableSwitchImeIcons.map { it.first }
-        assertTrue("Available icons should contain looks_1", 
-            iconResources.contains(R.drawable.looks_1))
-        assertTrue("Available icons should contain looks_2", 
-            iconResources.contains(R.drawable.looks_2))
-        assertTrue("Available icons should contain looks_3", 
-            iconResources.contains(R.drawable.looks_3))
-        assertTrue("Available icons should contain looks_4", 
-            iconResources.contains(R.drawable.looks_4))
-        assertTrue("Available icons should contain looks_5", 
-            iconResources.contains(R.drawable.looks_5))
+    fun testIconNameToResourceContainsLooksIcons() {
+        // Verify that the icon name mapping contains all looks icons
+        assertEquals("looks_1 should map to R.drawable.looks_1",
+            R.drawable.looks_1, resolveIconName("looks_1", 0))
+        assertEquals("looks_2 should map to R.drawable.looks_2",
+            R.drawable.looks_2, resolveIconName("looks_2", 0))
+        assertEquals("looks_3 should map to R.drawable.looks_3",
+            R.drawable.looks_3, resolveIconName("looks_3", 0))
+        assertEquals("looks_4 should map to R.drawable.looks_4",
+            R.drawable.looks_4, resolveIconName("looks_4", 0))
+        assertEquals("looks_5 should map to R.drawable.looks_5",
+            R.drawable.looks_5, resolveIconName("looks_5", 0))
     }
 
     @Test
-    fun testAvailableIconsContainsKeyboardIcons() {
-        // Verify that the available icons list contains all keyboard icons
-        val iconResources = availableSwitchImeIcons.map { it.first }
-        assertTrue("Available icons should contain keyboard_1", 
-            iconResources.contains(R.drawable.keyboard_1))
-        assertTrue("Available icons should contain keyboard_2", 
-            iconResources.contains(R.drawable.keyboard_2))
-        assertTrue("Available icons should contain keyboard_3", 
-            iconResources.contains(R.drawable.keyboard_3))
-        assertTrue("Available icons should contain keyboard_4", 
-            iconResources.contains(R.drawable.keyboard_4))
-        assertTrue("Available icons should contain keyboard_5", 
-            iconResources.contains(R.drawable.keyboard_5))
+    fun testIconNameToResourceContainsKeyboardIcons() {
+        // Verify that the icon name mapping contains all keyboard icons
+        assertEquals("keyboard_1 should map to R.drawable.keyboard_1",
+            R.drawable.keyboard_1, resolveIconName("keyboard_1", 0))
+        assertEquals("keyboard_2 should map to R.drawable.keyboard_2",
+            R.drawable.keyboard_2, resolveIconName("keyboard_2", 0))
+        assertEquals("keyboard_3 should map to R.drawable.keyboard_3",
+            R.drawable.keyboard_3, resolveIconName("keyboard_3", 0))
+        assertEquals("keyboard_4 should map to R.drawable.keyboard_4",
+            R.drawable.keyboard_4, resolveIconName("keyboard_4", 0))
+        assertEquals("keyboard_5 should map to R.drawable.keyboard_5",
+            R.drawable.keyboard_5, resolveIconName("keyboard_5", 0))
     }
 
     @Test
-    fun testAvailableIconsHaveDisplayNames() {
-        // Verify that all available icons have non-empty display names
-        for ((_, displayName) in availableSwitchImeIcons) {
-            assertNotNull("Icon display name should not be null", displayName)
-            assertTrue("Icon display name should not be empty", displayName.isNotEmpty())
-        }
-    }
-
-    @Test
-    fun testAvailableIconsAreUnique() {
-        // Verify that all icon resources in the available list are unique
-        val iconResources = availableSwitchImeIcons.map { it.first }
-        val uniqueIcons = iconResources.toSet()
-        assertEquals("All icon resources should be unique", 
-            iconResources.size, uniqueIcons.size)
+    fun testResolveIconNameReturnsDefaultForUnknown() {
+        // Verify that unknown icon names return the default
+        val defaultIcon = R.drawable.looks_1
+        assertEquals("Unknown icon name should return default",
+            defaultIcon, resolveIconName("unknown_icon", defaultIcon))
+        assertEquals("Empty icon name should return default",
+            defaultIcon, resolveIconName("", defaultIcon))
     }
 
     @Test
@@ -135,10 +125,10 @@ class SwitchImeActionTest {
         assertEquals("All icon setting keys should be unique", keys.size, uniqueKeys.size)
         
         // Verify expected key names
-        assertEquals("switch_ime_1_icon", SwitchIme1IconSetting.key.name)
-        assertEquals("switch_ime_2_icon", SwitchIme2IconSetting.key.name)
-        assertEquals("switch_ime_3_icon", SwitchIme3IconSetting.key.name)
-        assertEquals("switch_ime_4_icon", SwitchIme4IconSetting.key.name)
-        assertEquals("switch_ime_5_icon", SwitchIme5IconSetting.key.name)
+        assertEquals("switch_ime_1_icon_name", SwitchIme1IconSetting.key.name)
+        assertEquals("switch_ime_2_icon_name", SwitchIme2IconSetting.key.name)
+        assertEquals("switch_ime_3_icon_name", SwitchIme3IconSetting.key.name)
+        assertEquals("switch_ime_4_icon_name", SwitchIme4IconSetting.key.name)
+        assertEquals("switch_ime_5_icon_name", SwitchIme5IconSetting.key.name)
     }
 }
